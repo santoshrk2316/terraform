@@ -4,9 +4,9 @@ provider "aws" {
 
 
 #Create security group with firewall rules
-resource "aws_security_group" "security_jenkins_port" {
-  name        = "security_jenkins_port"
-  description = "security group for jenkins"
+resource "aws_security_group" "security_k8s_port" {
+  name        = "security_k8s_port"
+  description = "security group for k8s"
 
   ingress {
     from_port   = 8080
@@ -22,7 +22,7 @@ resource "aws_security_group" "security_jenkins_port" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
- # outbound from jenkis server
+ # outbound from k8s server
   egress {
     from_port   = 0
     to_port     = 65535
@@ -31,25 +31,43 @@ resource "aws_security_group" "security_jenkins_port" {
   }
 
   tags= {
-    Name = "security_jenkins_port"
+    Name = "security_k8s_port"
   }
 }
 
-resource "aws_instance" "myFirstInstance" {
+resource "aws_instance" "k8s_master" {
   ami           = "ami-06a0b4e3b7eb7a300"
   key_name = var.key_name
   instance_type = var.instance_type
-  security_groups= [ "security_jenkins_port"]
+  security_groups= [ "security_k8s_port"]
   tags= {
-    Name = "jenkins_instance"
+    Name = "master_instance"
+  }
+}
+resource "aws_instance" "k8s_node01" {
+  ami           = "ami-06a0b4e3b7eb7a300"
+  key_name = var.key_name
+  instance_type = var.instance_type
+  security_groups= [ "security_k8s_port"]
+  tags= {
+    Name = "node01_instance"
+  }
+}
+resource "aws_instance" "k8s_node02" {
+  ami           = "ami-06a0b4e3b7eb7a300"
+  key_name = var.key_name
+  instance_type = var.instance_type
+  security_groups= [ "security_k8s_port"]
+  tags= {
+    Name = "node02_instance"
   }
 }
 
 # Create Elastic IP address
-resource "aws_eip" "myFirstInstance" {
-  vpc      = true
-  instance = aws_instance.myFirstInstance.id
-tags= {
-    Name = "jenkins_elstic_ip"
-  }
-}
+#resource "aws_eip" "k8s_eip" {
+#  vpc      = true
+#  instance = aws_instance.k8s_master.id
+#  tags= {
+#    Name = "jenkins_elstic_ip"
+#  }
+#}
